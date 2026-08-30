@@ -1,85 +1,39 @@
 <script>
-  import { onMount } from "svelte";
-  import { slide, fade } from "svelte/transition";
-  import { store } from "../assets/store.js";
+  import { fade, slide } from 'svelte/transition';
+  import { store } from '../assets/store.js';
 
-  let descriptions = null;
+  let descriptions = [];
   let index = 0;
   export let finish = false;
   let startTransition = false;
 
-  function getDescriptions(description) {
-    let descriptions = [];
-    let sentences = description.split(".");
-
-    for (let i = 0; i < sentences.length; i++) {
-      if (sentences[i].length <= 1) continue;
-
-      if (i === sentences.length - 1) {
-        descriptions.push(sentences[i]);
-      } else {
-        descriptions.push(sentences[i] + "...");
-      }
-    }
-
-    return descriptions;
+  function getDescriptions(description = '') {
+    return description.split('.').filter(s => s.trim().length > 0).map((s, i, a) => i < a.length - 1 ? s + '...' : s);
   }
 
-  function onPointerDown()
-  {
-    index++;
+  $: if ($store.weightedPoints && $store.natureDescription) {
+    const ordered = Object.keys($store.weightedPoints).sort((a, b) => $store.weightedPoints[b] - $store.weightedPoints[a]);
+    descriptions = getDescriptions($store.natureDescription[ordered[0]]);
+  }
 
-    if(index >= descriptions.length)
-    {
+  function onPointerDown() {
+    if (!descriptions.length) return;
+    index++;
+    if (index >= descriptions.length) {
       startTransition = true;
       index = descriptions.length - 1;
+      finish = true;
     }
   }
-
-  store.subscribe((value) => {
-    getBestNature();
-  });
-
-  function getBestNature() {
-    let max = 0;
-    let maxNature = "";
-    let maxNatures = [];
-
-    if (store.weightedPoints == null) return;
-
-    // First step, order the natures by their score
-    let orderedNatures = Object.keys(store.weightedPoints).sort(
-      (a, b) => store.weightedPoints[b] - store.weightedPoints[a]
-    );
-
-    // Second step, add the natures with the highest score to the array
-    for (let nature of orderedNatures) {
-      if (store.weightedPoints[nature] >= max) {
-        max = store.weightedPoints[nature];
-        maxNature = nature;
-        maxNatures.push(maxNature);
-      }
-    }
-
-    descriptions = getDescriptions($store.natureDescription[maxNature]);
-  }
-
-
-  let text;
 </script>
 
 {#if !startTransition}
 <section class="select-none z-50">
-  <div
-    class="flex flex-col w-screen h-screen text-center justify-center items-center bg-black/[0.65]"
-    on:pointerdown="{() => onPointerDown()}"
-    transition:fade
-    on:outroend="{() => finish = true}">
+  <div class="flex flex-col w-screen h-screen text-center justify-center items-center bg-black/[0.65]" on:pointerdown={onPointerDown} transition:fade>
     {#key index}
-    <h1 bind:this={text} class="text-yellow-50 text-base sm:text-xl md:text-4xl pointer-events-none w-[75%] select-none"
-    transition:slide>
-      {descriptions[index]}
-    </h1>
+      <h1 class="text-yellow-50 text-base sm:text-xl md:text-4xl pointer-events-none w-[75%] select-none" transition:slide>
+        {descriptions[index]}
+      </h1>
     {/key}
     <div class="arrow-down animate-pulse"></div>
   </div>
