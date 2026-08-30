@@ -1,78 +1,38 @@
 <script>
-  import { onMount } from "svelte";
-  import Chart from "chart.js/auto";
-  import { store, radialChartConfig } from "../assets/store.js";
+  import { onMount } from 'svelte';
+  import Chart from 'chart.js/auto';
+  import { store, radialChartConfig } from '../assets/store.js';
 
   let chart = null;
   let myChart = null;
-  let minDataValue = 0.05;
+  let classes = '';
 
-  store.subscribe((value) => {
-    if (myChart) updateData();
-  });
+  $: if (myChart && $store.weightedPoints) updateData();
+
+  function createData() {
+    const labels = Object.keys($store.points || {});
+    const values = labels.map(key => (($store.points[key] || 0) / ($store.maxPoints?.[key] || 1)) + 0.05);
+    return { labels, datasets: [{ label: $store.strings?.radarChartLabel || 'Book affinity', data: values, borderWidth: 1 }] };
+  }
 
   function updateData() {
-    let values = [];
-
-    for (let [key, value] of Object.entries(store.weightedPoints)) {
-      values.push(value + minDataValue);
-    }
-
-    myChart.data.datasets[0].data = values;
-
+    if (!myChart) return;
+    const labels = Object.keys($store.points || {});
+    myChart.data.labels = labels;
+    myChart.data.datasets[0].data = labels.map(key => (($store.points[key] || 0) / ($store.maxPoints?.[key] || 1)) + 0.05);
     myChart.update();
   }
 
-  function createData() {
-    let labels = [];
-    let values = [];
-
-    for (let [key, value] of Object.entries($store.points)) {
-      labels.push(key);
-      values.push(((value / $store.maxPoints[key]) + minDataValue) / (1 + minDataValue));
-    }
-
-    let data = {
-      labels: labels,
-      datasets: [
-        {
-          label: $store.strings['radarChartLabel'],
-          lineTension: 0.1,
-          data: values,
-          backgroundColor: [
-            "rgba(255, 99, 132, 0.5)",
-          ],
-          borderColor: [
-            "rgba(255, 99, 132, 1)",
-          ],
-          borderWidth: 1,
-        },
-      ],
-    };
-
-    return data;
-  }
-
-  function createChart() {
-    const ctx = chart.getContext("2d");
-    let options = radialChartConfig;
-    options.plugins.title.text = $store.strings['radarChartLabel'];
-
-    myChart = new Chart(ctx, {
-      type: "radar",
-      data: createData(),
-      options: options,
-    });
-  }
-
   onMount(() => {
-    createChart();
+    myChart = new Chart(chart.getContext('2d'), {
+      type: 'radar',
+      data: createData(),
+      options: { ...radialChartConfig, plugins: { ...radialChartConfig.plugins, title: { ...radialChartConfig.plugins.title, text: $store.strings?.radarChartLabel || 'Book affinity' } } }
+    });
+    return () => myChart?.destroy();
   });
-
-  let classes = $$props.class;
 </script>
 
-<div
-  class="h-fit min-w-screen rounded-xl p-2 transition-all text-box {classes}">
-  <canvas bind:this="{chart}"></canvas>
+<div class="h-fit min-w-screen rounded-xl p-2 transition-all text-box {classes}">
+  <canvas bind:this={chart}></canvas>
 </div>
