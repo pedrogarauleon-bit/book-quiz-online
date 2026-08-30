@@ -1,0 +1,148 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+@font-face {
+  font-family: pmdFont;
+  src: url(/pkmn-font.ttf);
+}
+
+* {
+  font-family: pmdFont;
+  text-decoration: none;
+  font-size: 1.5rem;
+  /* line-height: 1.2rem; */
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+  }
+  
+  /* Track transparent */
+  ::-webkit-scrollbar-track {
+    background: rgba(244, 59, 59, 0);
+    border-radius: 10px;
+    /* display: none; */
+  }
+  
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: rgb(136, 136, 136);
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+  @layer components {
+    .dynamicMargin {
+      @apply mx-4 xl:mx-32 md:mx-16 sm:mx-8;
+    }
+
+    .dynamicMarginCanvas {
+      @apply mx-8 mb-2 xl:mx-16 md:mx-8 sm:mx-8 box-border;
+    }
+
+    .dynamicWidth {
+      @apply w-[80vw] md:w-[35vw];
+    }
+
+    .dynamicText {
+      @apply text-base sm:text-2xl md:leading-6 xl:text-2xl 2xl:text-3xl;
+    }
+
+    .text-box {
+      @apply  backdrop-blur-lg;
+      padding: 0.5rem;
+      text-align: center;
+  
+      background-color: hsla(300, 2%, 13%, 0.75);
+  
+      box-sizing: border-box;
+      border-radius: 15px;
+      border: 15px solid transparent;
+      border-image: url(/img/others/pmdtextbox.png) 43 round;
+    }
+
+    
+    .img-box{
+      background-color: hsla(300, 2%, 13%, 0.75);
+      
+      border: 8px solid transparent;
+      border-image: url(/img/others/pmdtextbox.png) 24;
+      image-rendering: pixelated;
+    }
+
+    :root
+    {
+      --time: 360s;
+      --hueTime: 10s;
+      --arrowSize: 0.45rem;
+      background-color: rgb(0,0,0);
+    }
+
+    .infinite-scroll-right
+    {
+      @apply bg-[url(/img/others/dreambackloop.png)];
+      animation : infinite-scroll-right var(--time) infinite, hue-Shif-tRight var(--hueTime) infinite;
+      animation-timing-function: linear;
+      background-repeat: repeat-x;
+      background-size: contain;
+    }
+    
+    .infinite-scroll-left
+    {
+      @apply bg-[url(/img/others/dreamfrontloop.png)];
+      animation : infinite-scroll-left var(--time) infinite, hue-Shif-tRight  var(--hueTime) infinite;
+      animation-timing-function: linear;
+      background-repeat: repeat-x;
+      background-size: contain;
+    }
+
+    .arrow-down {
+      width: 0; 
+      height: 0; 
+      border-left: var(--arrowSize) solid transparent;
+      border-right: var(--arrowSize) solid transparent;
+      
+      border-top: var(--arrowSize) solid rgba(255, 255, 255, 0.608);
+    }
+
+    .rendering-pixelated { image-rendering: pixelated; }
+
+    @keyframes infinite-scroll-right {
+      0% {
+        background-position: 0% 0;
+      }
+      100% {
+        background-position: 100% 0;
+      }
+    }
+
+    @keyframes hue-Shif-tRight
+    {
+      0% {filter: hue-rotate(0deg);}
+      100% {filter: hue-rotate(360deg);}
+    }
+
+    @keyframes hue-Shif-tLeft
+    {
+      0% {filter: hue-rotate(0deg);}
+      100% {filter: hue-rotate(-360deg);}
+    }
+
+    @keyframes infinite-scroll-left {
+      0% {
+        background-position: 100% 0;
+      }
+      100% {
+        background-position: 0 0;
+      }
+    }
+  }
