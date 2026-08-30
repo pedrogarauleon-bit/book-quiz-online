@@ -11,6 +11,7 @@
   let numberOfQuestions = 10;
   let questions = [];
   let index = 0;
+  let natureDescriptionFinished = false;
   export let dataExt = null;
   let carousel = null;
 
@@ -61,9 +62,8 @@
       <Question on:correctQuestion={onCorrectQuestion} questionData={question} />
     {/each}
   </Carousel>
-{:else}
+{:else if !natureDescriptionFinished}
   <NatureDecriptor bind:finish={natureDescriptionFinished} />
-  {#if natureDescriptionFinished}
-    <ResultScreen />
-  {/if}
+{:else}
+  <ResultScreen />
 {/if}
